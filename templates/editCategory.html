@@ -6,13 +6,13 @@
             <form action="#" method="POST">
                 <div class="form-group">
                     <label for="name">Category Name</label>
-                    <input name="name" type="text" class="form-control" id="name" placeholder="Name">
+                    <input name="name" type="text" class="form-control" id="name" value="{{category.name}}">
                 </div>
                 <div class="form-group">
                     <label for="desc">Description</label>
-                    <textarea name="desc" class="form-control" id="desc" rows="5" placeholder="Description"></textarea>
+                    <textarea name="desc" class="form-control" id="desc" rows="5">{% if category.desc %}{{category.desc}}{% endif %}</textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Create</button>
+                <button type="submit" class="btn btn-primary">Edit</button>
             </form>
         </div>
     </div>

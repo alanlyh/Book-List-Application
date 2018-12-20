@@ -7,7 +7,7 @@
             <!-- Page Heading -->
             <h1 class="my-4">Books
               <small>Driven to Discover</small>
-              <a class="btn btn-primary" href="#" role="button" style="float: right;">Add New Book</a>
+              <a class="btn btn-primary" href="{{url_for('newBook', category_id=category_id)}}" role="button" style="float: right;">Add New Book</a>
             </h1>
     
             <div class="row">
@@ -21,9 +21,9 @@
                             </h4>
                             <p class="card-text">Author: {{book.author}}</p>
                             <p class="card-text">Description: {{book.desc}}</p>
-                            <a href="#">Delete</a>
+                            <a href="{{url_for('deleteBook', category_id=category_id, book_id=book.id)}}">Delete</a>
                             <br>
-                            <a href="#">Edit</a>
+                            <a href="{{url_for('editBook', category_id=category_id, book_id=book.id)}}">Edit</a>
                         </div>
                         </div>
                     </div>

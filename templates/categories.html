@@ -24,7 +24,7 @@
                         <p class="card-text">Description: {{category.desc}}</p>
                         <a href="{{url_for('deleteCategory', category_id=category.id)}}">Delete</a>
                         <br>
-                        <a href="#">Edit</a>
+                        <a href="{{url_for('editCategory', category_id=category.id)}}">Edit</a>
                     </div>
                     </div>
                 </div>

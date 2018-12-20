@@ -1,0 +1,18 @@
+{% extends "main.html" %}
+{% block content %}
+    {% include "header.html" %}
+    <section class="py-5">
+            <div class="container">
+                    <div class="col-md-6 col-md-offset-1 padding-top">
+                        <form action="#" method="POST">
+                            <div class="form-group">
+                                <h1>Are your sure you want to delete book {{book.name}}?</h1>
+                            </div>
+                            <br>
+                            <a href="{{url_for('categoryBooks', category_id=category_id)}}" class="btn btn-primary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+    </section>
+{% endblock %}
