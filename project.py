@@ -139,6 +139,38 @@ def gconnect():
     return output
 
 
+@app.route('/gdisconnect')
+def gdisconnect():
+    access_token = login_session.get('access_token')
+    if access_token is None:
+        response = make_response(
+            json.dumps('Current user not connected.'),
+            401
+        )
+        response.headers['Content-Type'] = 'application/json'
+        return render_template('logout.html', message='Current user not connected')
+    # print 'In gdisconnect access token is %s', access_token
+    print 'User name is: '
+    print login_session['username']
+    r = requests.post('https://accounts.google.com/o/oauth2/revoke',
+        params={'token': login_session['access_token']},
+        headers = {'content-type': 'application/x-www-form-urlencoded'}
+    )
+    print 'result is '
+    print r
+    if r.status_code == 200:
+        del login_session['access_token']
+        del login_session['gplus_id']
+        del login_session['username']
+        del login_session['id']
+        del login_session['picture']
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return render_template('logout.html', message='Successfully disconnected.')
+    else:
+        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return render_template('logout.html', message='Failed to revoke token for given user.')
 
 # JSON APIs to view books for one category
 @app.route('/category/<int:category_id>/book/JSON')
@@ -166,13 +198,13 @@ def categoriesJSON():
 @app.route('/category')
 def categories():
     categories = session.query(Category).order_by(Category.name).all()
-    return render_template('categories.html', categories=categories)
+    return render_template('categories.html', categories=categories, session=login_session)
 
 
 @app.route('/category/<int:category_id>/book')
 def categoryBooks(category_id):
     books = session.query(Book).filter_by(category_id=category_id).all()
-    return render_template('books.html', books=books, category_id=category_id)
+    return render_template('books.html', books=books, category_id=category_id, session=login_session)
 
 
 @app.route('/category/<int:category_id>/book/<int:book_id>')
@@ -181,7 +213,8 @@ def bookDetail(category_id, book_id):
     return render_template(
         "bookDetail.html",
         book=book,
-        category_id=category_id
+        category_id=category_id,
+        session=login_session
     )
 
 
@@ -200,7 +233,7 @@ def newCategory():
         session.commit()
         return redirect(url_for('categories'))
     else:
-        return render_template("newCategory.html")
+        return render_template("newCategory.html", session=login_session)
 
 
 @app.route('/category/<int:category_id>/delete', methods=['GET', 'POST'])
@@ -211,7 +244,7 @@ def deleteCategory(category_id):
         session.commit()
         return redirect(url_for('categories'))
     else:
-        return render_template("deleteCategory.html", category=category)
+        return render_template("deleteCategory.html", category=category, session=login_session)
 
 
 @app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
@@ -227,7 +260,7 @@ def editCategory(category_id):
         session.commit()
         return redirect(url_for('categories'))
     else:
-        return render_template("editCategory.html", category=category)
+        return render_template("editCategory.html", category=category, session=login_session)
 
 
 @app.route('/category/<int:category_id>/book/new', methods=['GET', 'POST'])
@@ -244,7 +277,7 @@ def newBook(category_id):
         session.commit()
         return redirect(url_for('categoryBooks', category_id=category.id))
     else:
-        return render_template("newBook.html")
+        return render_template("newBook.html", session=login_session)
 
 
 @app.route(
@@ -261,7 +294,8 @@ def deleteBook(category_id, book_id):
         return render_template(
             "deleteBook.html",
             book=book,
-            category_id=category_id
+            category_id=category_id,
+            session=login_session
         )
 
 
@@ -288,7 +322,8 @@ def editBook(category_id, book_id):
         return render_template(
             "editBook.html",
             book=book,
-            category_id=category_id
+            category_id=category_id,
+            session=login_session
         )
 
 
