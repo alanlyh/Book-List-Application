@@ -103,8 +103,10 @@ def gconnect():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'),
+            200
+        )
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -148,13 +150,17 @@ def gdisconnect():
             401
         )
         response.headers['Content-Type'] = 'application/json'
-        return render_template('logout.html', message='Current user not connected')
+        return render_template(
+            'logout.html',
+            message='Current user not connected'
+        )
     # print 'In gdisconnect access token is %s', access_token
     print 'User name is: '
     print login_session['username']
-    r = requests.post('https://accounts.google.com/o/oauth2/revoke',
+    r = requests.post(
+        'https://accounts.google.com/o/oauth2/revoke',
         params={'token': login_session['access_token']},
-        headers = {'content-type': 'application/x-www-form-urlencoded'}
+        headers={'content-type': 'application/x-www-form-urlencoded'}
     )
     print 'result is '
     print r
@@ -166,11 +172,20 @@ def gdisconnect():
         del login_session['picture']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return render_template('logout.html', message='Successfully disconnected.')
+        return render_template(
+            'logout.html',
+            message='Successfully disconnected.'
+        )
     else:
-        response = make_response(json.dumps('Failed to revoke token for given user.', 400))
+        response = make_response(
+            json.dumps('Failed to revoke token for given user.', 400)
+        )
         response.headers['Content-Type'] = 'application/json'
-        return render_template('logout.html', message='Failed to revoke token for given user.')
+        return render_template(
+            'logout.html',
+            message='Failed to revoke token for given user.'
+        )
+
 
 # JSON APIs to view books for one category
 @app.route('/category/<int:category_id>/book/JSON')
@@ -198,13 +213,22 @@ def categoriesJSON():
 @app.route('/category')
 def categories():
     categories = session.query(Category).order_by(Category.name).all()
-    return render_template('categories.html', categories=categories, session=login_session)
+    return render_template(
+        'categories.html',
+        categories=categories,
+        session=login_session
+    )
 
 
 @app.route('/category/<int:category_id>/book')
 def categoryBooks(category_id):
     books = session.query(Book).filter_by(category_id=category_id).all()
-    return render_template('books.html', books=books, category_id=category_id, session=login_session)
+    return render_template(
+        'books.html',
+        books=books,
+        category_id=category_id,
+        session=login_session
+    )
 
 
 @app.route('/category/<int:category_id>/book/<int:book_id>')
@@ -244,7 +268,11 @@ def deleteCategory(category_id):
         session.commit()
         return redirect(url_for('categories'))
     else:
-        return render_template("deleteCategory.html", category=category, session=login_session)
+        return render_template(
+            "deleteCategory.html",
+            category=category,
+            session=login_session
+        )
 
 
 @app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
@@ -260,7 +288,11 @@ def editCategory(category_id):
         session.commit()
         return redirect(url_for('categories'))
     else:
-        return render_template("editCategory.html", category=category, session=login_session)
+        return render_template(
+            "editCategory.html",
+            category=category,
+            session=login_session
+        )
 
 
 @app.route('/category/<int:category_id>/book/new', methods=['GET', 'POST'])
