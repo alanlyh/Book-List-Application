@@ -3,6 +3,8 @@
 ## Description
 This is a Flask application for users to share their book list with others.
 
+![Preview](preview.png)
+
 ## Requirements
 This project need to be run with `Python 2.7`, and the libraries required in this project are included in `requirement.txt`. To install the libraries, you can just simply run `pip install -r requirements.txt`
 
