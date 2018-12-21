@@ -9,7 +9,7 @@ from flask import (
 )
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, Category, Book
+from database_setup import Base, Category, Book, User
 
 from flask import session as login_session
 import random
@@ -126,11 +126,23 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['id'] = data['id']
 
+    indb_user = session.query(User).filter_by(
+        id=login_session['id']
+    ).all()
+    if not indb_user:
+        user = User(
+            id=login_session['id'],
+            name=login_session['username']
+        )
+        
+        session.add(user)
+        session.commit()
+
     output = """
         <h1>Welcome, {}!</h1>
         <img src="{}"
-            style="width: 300px;
-                    height: 300px;
+            style="width: 100px;
+                    height: 100px;
                     border-radius: 150px;
                     -webkit-border-radius: 150px;
                     -moz-border-radius: 150px;"
@@ -164,27 +176,17 @@ def gdisconnect():
     )
     print 'result is '
     print r
-    if r.status_code == 200:
-        del login_session['access_token']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['id']
-        del login_session['picture']
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return render_template(
-            'logout.html',
-            message='Successfully disconnected.'
-        )
-    else:
-        response = make_response(
-            json.dumps('Failed to revoke token for given user.', 400)
-        )
-        response.headers['Content-Type'] = 'application/json'
-        return render_template(
-            'logout.html',
-            message='Failed to revoke token for given user.'
-        )
+    del login_session['access_token']
+    del login_session['gplus_id']
+    del login_session['username']
+    del login_session['id']
+    del login_session['picture']
+    response = make_response(json.dumps('Successfully disconnected.'), 200)
+    response.headers['Content-Type'] = 'application/json'
+    return render_template(
+        'logout.html',
+        message='Successfully disconnected.'
+    )
 
 
 # JSON APIs to view books for one category
@@ -222,11 +224,12 @@ def categories():
 
 @app.route('/category/<int:category_id>/book')
 def categoryBooks(category_id):
+    category = session.query(Category).filter_by(id=category_id).one()
     books = session.query(Book).filter_by(category_id=category_id).all()
     return render_template(
         'books.html',
         books=books,
-        category_id=category_id,
+        category=category,
         session=login_session
     )
 
@@ -244,15 +247,19 @@ def bookDetail(category_id, book_id):
 
 @app.route('/category/new', methods=['GET', 'POST'])
 def newCategory():
+    if "id" not in login_session:
+        return redirect(url_for('showLogin'))
     if request.method == 'POST':
         category = None
+        user = session.query(User).filter_by(id=login_session["id"]).one()
         if 'desc' in request.form and request.form['desc'] != "":
             category = Category(
                 name=request.form['name'],
-                desc=request.form['desc']
+                desc=request.form['desc'],
+                user=user
             )
         else:
-            category = Category(name=request.form['name'])
+            category = Category(name=request.form['name'], user=user)
         session.add(category)
         session.commit()
         return redirect(url_for('categories'))
@@ -262,7 +269,11 @@ def newCategory():
 
 @app.route('/category/<int:category_id>/delete', methods=['GET', 'POST'])
 def deleteCategory(category_id):
+    if "id" not in login_session:
+        return redirect(url_for('showLogin'))
     category = session.query(Category).filter_by(id=category_id).one()
+    if category.user_id != login_session["id"]:
+        return render_template("error.html", message="You are not the owner.")
     if request.method == 'POST':
         session.delete(category)
         session.commit()
@@ -277,7 +288,11 @@ def deleteCategory(category_id):
 
 @app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
 def editCategory(category_id):
+    if "id" not in login_session:
+        return redirect(url_for('showLogin'))
     category = session.query(Category).filter_by(id=category_id).one()
+    if category.user_id != login_session["id"]:
+        return render_template("error.html", message="You are not the owner.")
     if request.method == 'POST':
         category.name = request.form['name']
         if 'desc' in request.form and request.form['desc'] != "":
@@ -297,10 +312,15 @@ def editCategory(category_id):
 
 @app.route('/category/<int:category_id>/book/new', methods=['GET', 'POST'])
 def newBook(category_id):
+    if "id" not in login_session:
+        return redirect(url_for('showLogin'))
+    category = session.query(Category).filter_by(id=category_id).one()
+    if (category.user_id != login_session['id']):
+        return render_template("error.html", message="You are not the owner.")
     if request.method == 'POST':
-        category = session.query(Category).filter_by(id=category_id).one()
+        user = session.query(User).filter_by(id=login_session["id"]).one()
         book = None
-        book = Book(name=request.form['name'], category=category)
+        book = Book(name=request.form['name'], category=category, user=user)
         if 'desc' in request.form and request.form['desc'] != "":
             book.desc = request.form['desc']
         if 'author' in request.form and request.form['author'] != "":
@@ -317,7 +337,11 @@ def newBook(category_id):
     methods=['GET', 'POST']
 )
 def deleteBook(category_id, book_id):
+    if "id" not in login_session:
+        return redirect(url_for('showLogin'))
     book = session.query(Book).filter_by(id=book_id).one()
+    if book.user_id != login_session["id"]:
+        return render_template("error.html", message="You are not the owner.")
     if request.method == 'POST':
         session.delete(book)
         session.commit()
@@ -336,7 +360,11 @@ def deleteBook(category_id, book_id):
     methods=['GET', 'POST']
 )
 def editBook(category_id, book_id):
+    if "id" not in login_session:
+        return redirect(url_for('showLogin'))
     book = session.query(Book).filter_by(id=book_id).one()
+    if book.user_id != login_session["id"]:
+        return render_template("error.html", message="You are not the owner.")
     if request.method == 'POST':
         book.name = request.form['name']
         if 'desc' in request.form and request.form['desc'] != "":
@@ -357,6 +385,24 @@ def editBook(category_id, book_id):
             category_id=category_id,
             session=login_session
         )
+
+
+@app.route('/collection')
+def myCollection():
+    if "id" not in login_session:
+        return redirect(url_for('showLogin'))
+    categories = session.query(
+        Category
+    ).filter_by(
+        user_id=login_session['id']
+    ).order_by(
+        Category.name
+    ).all()
+    return render_template(
+        'collection.html',
+        categories=categories,
+        session=login_session
+    )
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Category, Book
+from database_setup import Base, Category, Book, User
 
 engine = create_engine('sqlite:///books.db')
 # Bind the engine to the metadata of the Base class so that the
@@ -18,8 +18,13 @@ DBSession = sessionmaker(bind=engine)
 # session.rollback()
 session = DBSession()
 
+user = User(id="112992310265322312899", name="Yuanhao Lu")
+
+session.add(user)
+session.commit()
+
 # Books for big data
-category1 = Category(name="big data", desc="big data book list")
+category1 = Category(name="big data", desc="big data book list", user=user)
 
 session.add(category1)
 session.commit()
@@ -58,7 +63,8 @@ book1 = Book(
     name="Designing Data-Intensive Applications",
     author="Martin Kleppmann",
     category=category1,
-    desc=desc1
+    desc=desc1,
+    user=user
 )
 
 session.add(book1)
@@ -98,14 +104,15 @@ book2 = Book(
     name="High Performance Spark",
     author="Holden Karau & Rachel Warren",
     category=category1,
-    desc=desc2
+    desc=desc2,
+    user=user
 )
 
 session.add(book2)
 session.commit()
 
 # Books for Javascript
-category1 = Category(name="JavaScript", desc="JS book list")
+category1 = Category(name="JavaScript", desc="JS book list", user=user)
 
 session.add(category1)
 session.commit()
@@ -145,7 +152,8 @@ book1 = Book(
     name="High Performance JavaScript",
     author="Nicholas C. Zakas",
     category=category1,
-    desc=desc1
+    desc=desc1,
+    user=user
 )
 
 session.add(book1)
@@ -184,7 +192,8 @@ book2 = Book(
     name="You Don't Know JS: Async & Performance",
     author="Kyle Simpson",
     category=category1,
-    desc=desc2
+    desc=desc2,
+    user=user
 )
 
 session.add(book2)

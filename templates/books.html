@@ -7,23 +7,27 @@
             <!-- Page Heading -->
             <h1 class="my-4">Books
               <small>Driven to Discover</small>
-              <a class="btn btn-primary" href="{{url_for('newBook', category_id=category_id)}}" role="button" style="float: right;">Add New Book</a>
+              {% if session.id == category.user_id %}
+              <a class="btn btn-primary" href="{{url_for('newBook', category_id=category.id)}}" role="button" style="float: right;">Add New Book</a>
+              {% endif %}
             </h1>
     
             <div class="row">
                 {% for book in books %}
                     <div class="col-lg-3 col-md-4 col-sm-6 portfolio-item">
                         <div class="card h-80">
-                        <a href="{{url_for('bookDetail', category_id=category_id, book_id=book.id)}}"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
+                        <a href="{{url_for('bookDetail', category_id=category.id, book_id=book.id)}}"><img class="card-img-top" src="http://placehold.it/700x400" alt=""></a>
                         <div class="card-body">
                             <h4 class="card-title">
-                            <a href="{{url_for('bookDetail', category_id=category_id, book_id=book.id)}}">{{book.name}}</a>
+                            <a href="{{url_for('bookDetail', category_id=category.id, book_id=book.id)}}">{{book.name}}</a>
                             </h4>
                             <p class="card-text"><b>Author: </b>{{book.author}}</p>
                             <p class="card-text"><b>Description: </b>{% if book.desc %}{{book.desc[:100]}}{% else %}None{% endif %}</p>
-                            <a href="{{url_for('deleteBook', category_id=category_id, book_id=book.id)}}">Delete</a>
+                            {% if session.id == book.user_id %}
+                            <a href="{{url_for('deleteBook', category_id=category.id, book_id=book.id)}}">Delete</a>
                             <br>
-                            <a href="{{url_for('editBook', category_id=category_id, book_id=book.id)}}">Edit</a>
+                            <a href="{{url_for('editBook', category_id=category.id, book_id=book.id)}}">Edit</a>
+                            {% endif %}
                         </div>
                         </div>
                     </div>
