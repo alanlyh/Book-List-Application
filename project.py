@@ -1,11 +1,19 @@
-from flask import Flask, render_template, request, redirect,jsonify, url_for, flash
-app = Flask(__name__)
-
+from flask import (
+    Flask,
+    render_template,
+    request,
+    redirect,
+    jsonify,
+    url_for,
+    flash
+)
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Category, Book
 
-#Connect to Database and create database session
+app = Flask(__name__)
+
+# Connect to Database and create database session
 engine = create_engine('sqlite:///books.db')
 Base.metadata.bind = engine
 
@@ -13,7 +21,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
-#JSON APIs to view books for one category
+# JSON APIs to view books for one category
 @app.route('/category/<int:category_id>/book/JSON')
 def categoryBookJSON(category_id):
     # category = session.query(Category).filter_by(id=category_id).one()
@@ -21,18 +29,18 @@ def categoryBookJSON(category_id):
     return jsonify(books=[i.serialize for i in items])
 
 
-#JSON APIs to view details for one book
+# JSON APIs to view details for one book
 @app.route('/category/<int:category_id>/book/<int:book_id>/JSON')
 def bookJSON(category_id, book_id):
-    bookItem = session.query(Book).filter_by(id = book_id).one()
-    return jsonify(bookItem = bookItem.serialize)
+    bookItem = session.query(Book).filter_by(id=book_id).one()
+    return jsonify(bookItem=bookItem.serialize)
 
 
-#JSON APIs to view categories
+# JSON APIs to view categories
 @app.route('/category/JSON')
 def categoriesJSON():
     categories = session.query(Category).all()
-    return jsonify(categories= [c.serialize for c in categories])
+    return jsonify(categories=[c.serialize for c in categories])
 
 
 @app.route('/')
@@ -44,14 +52,18 @@ def categories():
 
 @app.route('/category/<int:category_id>/book')
 def categoryBooks(category_id):
-	books = session.query(Book).filter_by(category_id=category_id).all()
-	return render_template('books.html', books=books, category_id=category_id)
+    books = session.query(Book).filter_by(category_id=category_id).all()
+    return render_template('books.html', books=books, category_id=category_id)
 
 
 @app.route('/category/<int:category_id>/book/<int:book_id>')
 def bookDetail(category_id, book_id):
-    book = session.query(Book).filter_by(id = book_id).one()
-    return render_template("bookDetail.html", book=book)
+    book = session.query(Book).filter_by(id=book_id).one()
+    return render_template(
+        "bookDetail.html",
+        book=book,
+        category_id=category_id
+    )
 
 
 @app.route('/category/new', methods=['GET', 'POST'])
@@ -59,7 +71,10 @@ def newCategory():
     if request.method == 'POST':
         category = None
         if 'desc' in request.form and request.form['desc'] != "":
-            category = Category(name=request.form['name'], desc=request.form['desc'])
+            category = Category(
+                name=request.form['name'],
+                desc=request.form['desc']
+            )
         else:
             category = Category(name=request.form['name'])
         session.add(category)
@@ -113,7 +128,10 @@ def newBook(category_id):
         return render_template("newBook.html")
 
 
-@app.route('/category/<int:category_id>/book/<int:book_id>/delete', methods=['GET', 'POST'])
+@app.route(
+    '/category/<int:category_id>/book/<int:book_id>/delete',
+    methods=['GET', 'POST']
+)
 def deleteBook(category_id, book_id):
     book = session.query(Book).filter_by(id=book_id).one()
     if request.method == 'POST':
@@ -121,10 +139,17 @@ def deleteBook(category_id, book_id):
         session.commit()
         return redirect(url_for('categoryBooks', category_id=category_id))
     else:
-        return render_template("deleteBook.html", book=book, category_id=category_id)
+        return render_template(
+            "deleteBook.html",
+            book=book,
+            category_id=category_id
+        )
 
 
-@app.route('/category/<int:category_id>/book/<int:book_id>/edit', methods=['GET', 'POST'])
+@app.route(
+    '/category/<int:category_id>/book/<int:book_id>/edit',
+    methods=['GET', 'POST']
+)
 def editBook(category_id, book_id):
     book = session.query(Book).filter_by(id=book_id).one()
     if request.method == 'POST':
@@ -141,10 +166,13 @@ def editBook(category_id, book_id):
         session.commit()
         return redirect(url_for('categoryBooks', category_id=category_id))
     else:
-        return render_template("editBook.html", book=book, category_id=category_id)
-
+        return render_template(
+            "editBook.html",
+            book=book,
+            category_id=category_id
+        )
 
 
 if __name__ == '__main__':
-  app.debug = True
-  app.run(host = '0.0.0.0', port = 5000)
+    app.debug = True
+    app.run(host='0.0.0.0', port=5000)

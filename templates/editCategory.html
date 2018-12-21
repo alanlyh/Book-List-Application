@@ -12,7 +12,8 @@
                     <label for="desc">Description</label>
                     <textarea name="desc" class="form-control" id="desc" rows="5">{% if category.desc %}{{category.desc}}{% endif %}</textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Edit</button>
+                <a href="{{url_for('categories')}}" class="btn btn-primary">Cancel</a>
+                <button type="submit" class="btn btn-danger">Edit</button>
             </form>
         </div>
     </div>
