@@ -134,7 +134,7 @@ def gconnect():
             id=login_session['id'],
             name=login_session['username']
         )
-        
+
         session.add(user)
         session.commit()
 
