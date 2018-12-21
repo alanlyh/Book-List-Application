@@ -51,6 +51,7 @@ def showLogin():
     return render_template('login.html', STATE=state)
 
 
+# Route for login
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
     # Validate state token
@@ -153,6 +154,7 @@ def gconnect():
     return output
 
 
+# Route for logout
 @app.route('/gdisconnect')
 def gdisconnect():
     access_token = login_session.get('access_token')
@@ -211,6 +213,7 @@ def categoriesJSON():
     return jsonify(categories=[c.serialize for c in categories])
 
 
+# List all categories
 @app.route('/')
 @app.route('/category')
 def categories():
@@ -222,6 +225,7 @@ def categories():
     )
 
 
+# List all book within a category
 @app.route('/category/<int:category_id>/book')
 def categoryBooks(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
@@ -234,6 +238,7 @@ def categoryBooks(category_id):
     )
 
 
+# Book detail
 @app.route('/category/<int:category_id>/book/<int:book_id>')
 def bookDetail(category_id, book_id):
     book = session.query(Book).filter_by(id=book_id).one()
@@ -245,6 +250,7 @@ def bookDetail(category_id, book_id):
     )
 
 
+# Create a new category
 @app.route('/category/new', methods=['GET', 'POST'])
 def newCategory():
     if "id" not in login_session:
@@ -267,6 +273,7 @@ def newCategory():
         return render_template("newCategory.html", session=login_session)
 
 
+# Delete a category
 @app.route('/category/<int:category_id>/delete', methods=['GET', 'POST'])
 def deleteCategory(category_id):
     if "id" not in login_session:
@@ -286,6 +293,7 @@ def deleteCategory(category_id):
         )
 
 
+# Edit a category
 @app.route('/category/<int:category_id>/edit', methods=['GET', 'POST'])
 def editCategory(category_id):
     if "id" not in login_session:
@@ -310,6 +318,7 @@ def editCategory(category_id):
         )
 
 
+# Create a new book
 @app.route('/category/<int:category_id>/book/new', methods=['GET', 'POST'])
 def newBook(category_id):
     if "id" not in login_session:
@@ -332,6 +341,7 @@ def newBook(category_id):
         return render_template("newBook.html", session=login_session)
 
 
+# Delete a book
 @app.route(
     '/category/<int:category_id>/book/<int:book_id>/delete',
     methods=['GET', 'POST']
@@ -355,6 +365,7 @@ def deleteBook(category_id, book_id):
         )
 
 
+# Edit a book
 @app.route(
     '/category/<int:category_id>/book/<int:book_id>/edit',
     methods=['GET', 'POST']
@@ -387,6 +398,7 @@ def editBook(category_id, book_id):
         )
 
 
+# List all categories created by current user
 @app.route('/collection')
 def myCollection():
     if "id" not in login_session:

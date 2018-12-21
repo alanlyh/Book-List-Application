@@ -33,3 +33,9 @@ For Google login feature, you need to include your client secrect file downloade
 
 ## Usage
 After meeting mentioned requirements, simply type `python project.py` to start the server, and the website will be served at `http://localhost:5000`
+
+## JSON endpoint
+When the server is on, it can provide 3 JSON API
+* `/category/JSON` for getting all categories
+* `/category/<int:category_id>/book/JSON` for getting all books within a given category
+* `/category/<int:category_id>/book/<int:book_id>/JSON` for getting details for a given book
