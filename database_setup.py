@@ -26,7 +26,7 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
-    desc = Column(String(400))
+    desc = Column(String(1000))
     user_id = Column(String(250), ForeignKey('user.id'))
     user = relationship(User)
 
@@ -46,7 +46,7 @@ class Book(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     author = Column(String(250))
-    desc = Column(String(1000))
+    desc = Column(String(5000))
     user_id = Column(String(250), ForeignKey('user.id'))
     user = relationship(User)
     category_id = Column(Integer, ForeignKey('category.id'))
@@ -63,6 +63,6 @@ class Book(Base):
         }
 
 
-engine = create_engine('sqlite:///books.db')
+engine = create_engine('postgresql:///books')
 
 Base.metadata.create_all(engine)

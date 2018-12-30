@@ -31,7 +31,7 @@ CLIENT_ID = json.loads(
 )['web']['client_id']
 
 # Connect to Database and create database session
-engine = create_engine('sqlite:///books.db')
+engine = create_engine('postgresql:///books')
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
